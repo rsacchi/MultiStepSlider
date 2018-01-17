@@ -218,6 +218,8 @@ open class MultiStepRangeSlider: UIControl {
 	open var continuousCurrentValue: RangeValue {
 		return RangeValue(lower: lowerValue, upper: upperValue)
 	}
+
+    @IBInspectable open var shouldSlideToConcreteValues: Bool = true
 	
 	// MARK: - Private variables
 
@@ -441,14 +443,17 @@ open class MultiStepRangeSlider: UIControl {
 	- Parameter offset : The distance moved by upper thumb with respect to last location
 	
 	*/
-	private func updateUpperValue(_ offset: CGFloat) {
+    private func updateUpperValue(_ offset: CGFloat, forceSlide: Bool = false) {
 		upperCenter = boundValue(upperCenter + offset, lowerValue: lowerThumbLayer.frame.midX + thumbSize.width,
 		                         upperValue: trackLayer.frame.maxX)
 		if let nodeValue = nodeValueForPosition(upperCenter) {
 			discreteCurrentValue.upper = nodeValue
-		}
-		if let actualValue = actualValueForPosition(upperCenter) {
-			upperValue = actualValue
+            if forceSlide {
+                upperValue = nodeValue
+                upperCenter = positionForNodeValue(nodeValue) ?? upperCenter
+            } else if let actualValue = actualValueForPosition(upperCenter) {
+                upperValue = actualValue
+            }
 		}
 	}
 	
@@ -457,14 +462,17 @@ open class MultiStepRangeSlider: UIControl {
 	
 	- Parameter offset : The distance moved by lower thumb with respect to last location
 	*/
-	private func updateLowerValue(_ offset: CGFloat) {
+	private func updateLowerValue(_ offset: CGFloat, forceSlide: Bool = false) {
 		lowerCenter = boundValue(lowerCenter + offset,lowerValue: trackLayer.frame.minX,
 		                         upperValue:  upperThumbLayer.frame.midX - thumbSize.width)
 		if let nodeValue = nodeValueForPosition(lowerCenter) {
 			discreteCurrentValue.lower = nodeValue
-		}
-		if let actualValue = actualValueForPosition(lowerCenter) {
-			lowerValue = actualValue
+            if forceSlide {
+                lowerValue = nodeValue
+                lowerCenter = positionForNodeValue(nodeValue) ?? lowerCenter
+            } else if let actualValue = actualValueForPosition(lowerCenter) {
+                lowerValue = actualValue
+            }
 		}
 	}
 	
@@ -516,7 +524,24 @@ open class MultiStepRangeSlider: UIControl {
 	}
 	
 	override open func endTracking(_ touch: UITouch?, with event: UIEvent?) {
+        if shouldSlideToConcreteValues, let touch = touch {
+            let location = touch.location(in: self)
+            let deltaLocation = location.x - previousLocation.x
+            previousLocation = location
+
+            if lowerThumbLayer.highlighted {
+                updateLowerValue(deltaLocation, forceSlide: true)
+
+            } else if upperThumbLayer.highlighted {
+                updateUpperValue(deltaLocation, forceSlide: true)
+            }
+            updateLayerFrames()
+            sendActions(for: .valueChanged)
+        }
+
 		lowerThumbLayer.highlighted = false
 		upperThumbLayer.highlighted = false
+
+        super.endTracking(touch, with: event)
 	}
 }
