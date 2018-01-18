@@ -414,6 +414,16 @@ open class MultiStepRangeSlider: UIControl {
 		}
 		return nodesList[nodeNumber]
 	}
+
+    private func nodeIndexForPosition(_ position: CGFloat)-> Int? {
+        let scale = trackLayer.frame.size.width / CGFloat(nodesList.count)
+        let scaledPosition = position - trackLayer.frame.minX
+        let nodeNumber = Int(floor(scaledPosition / scale))
+        guard nodeNumber < nodesList.count && nodeNumber >= 0 else {
+            return nil
+        }
+        return nodeNumber
+    }
 	
 	/**
 	This method returns the actual value corresponding to the thumb position
@@ -470,6 +480,10 @@ open class MultiStepRangeSlider: UIControl {
             if forceSlide {
                 lowerValue = nodeValue
                 lowerCenter = positionForNodeValue(nodeValue) ?? lowerCenter
+                if lowerValue == upperValue, let nodeIndex = nodeIndexForPosition(lowerCenter), nodeIndex > 0 {
+                    lowerValue = nodesList[nodeIndex - 1]
+                    lowerCenter = positionForNodeValue(lowerValue) ?? lowerCenter
+                }
             } else if let actualValue = actualValueForPosition(lowerCenter) {
                 lowerValue = actualValue
             }
