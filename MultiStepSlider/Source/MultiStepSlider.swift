@@ -458,49 +458,49 @@ open class MultiStepRangeSlider: UIControl {
 	
 	*/
     private func updateUpperValue(_ offset: CGFloat, forceSlide: Bool = false) {
-		upperCenter = boundValue(upperCenter + offset, lowerValue: lowerThumbLayer.frame.midX + thumbSize.width,
-		                         upperValue: trackLayer.frame.maxX)
-		if let nodeValue = nodeValueForPosition(upperCenter) {
-			discreteCurrentValue.upper = nodeValue
+        upperCenter = boundValue(upperCenter + offset, lowerValue: lowerThumbLayer.frame.midX + thumbSize.width,
+                                 upperValue: trackLayer.frame.maxX)
+        if let nodeValue = nodeValueForPosition(upperCenter) {
+            discreteCurrentValue.upper = nodeValue
             if forceSlide {
                 upperValue = nodeValue
                 discreteCurrentValue.upper = upperValue
                 upperCenter = positionForNodeValue(upperValue) ?? upperCenter
-                if upperValue == lowerValue, let nodeIndex = nodeIndexForPosition(upperCenter), nodeIndex < nodesList.count - 2 {
-                    upperValue = nodesList[nodeIndex + 1]
+                if upperValue == lowerValue, let nodeIndex = nodeIndexForPosition(upperCenter) {
+                    upperValue = nodesList[min(nodeIndex+1, nodesList.count-1)]
                     discreteCurrentValue.upper = upperValue
                     upperCenter = positionForNodeValue(upperValue) ?? upperCenter
                 }
             } else if let actualValue = actualValueForPosition(upperCenter) {
                 upperValue = actualValue
             }
-		}
-	}
-	
-	/**
-	This method updates lowerCenter(the center of lower thumb), lowerValue and upper property of discreteCurrentValue
-	
-	- Parameter offset : The distance moved by lower thumb with respect to last location
-	*/
-	private func updateLowerValue(_ offset: CGFloat, forceSlide: Bool = false) {
-		lowerCenter = boundValue(lowerCenter + offset,lowerValue: trackLayer.frame.minX,
-		                         upperValue:  upperThumbLayer.frame.midX - thumbSize.width)
-		if let nodeValue = nodeValueForPosition(lowerCenter) {
-			discreteCurrentValue.lower = nodeValue
+        }
+    }
+
+    /**
+     This method updates lowerCenter(the center of lower thumb), lowerValue and upper property of discreteCurrentValue
+
+     - Parameter offset : The distance moved by lower thumb with respect to last location
+     */
+    private func updateLowerValue(_ offset: CGFloat, forceSlide: Bool = false) {
+        lowerCenter = boundValue(lowerCenter + offset,lowerValue: trackLayer.frame.minX,
+                                 upperValue:  upperThumbLayer.frame.midX - thumbSize.width)
+        if let nodeValue = nodeValueForPosition(lowerCenter) {
+            discreteCurrentValue.lower = nodeValue
             if forceSlide {
                 lowerValue = nodeValue
                 discreteCurrentValue.lower = lowerValue
                 lowerCenter = positionForNodeValue(lowerValue) ?? lowerCenter
-                if lowerValue == upperValue, let nodeIndex = nodeIndexForPosition(lowerCenter), nodeIndex > 0 {
-                    lowerValue = nodesList[nodeIndex - 1]
+                if lowerValue == upperValue, let nodeIndex = nodeIndexForPosition(lowerCenter) {
+                    lowerValue = nodesList[max(nodeIndex-1, 0)]
                     discreteCurrentValue.lower = lowerValue
                     lowerCenter = positionForNodeValue(lowerValue) ?? lowerCenter
                 }
             } else if let actualValue = actualValueForPosition(lowerCenter) {
                 lowerValue = actualValue
             }
-		}
-	}
+        }
+    }
 	
 	/**
 	This method makes sure the given value lies between given upper and lower limit.
