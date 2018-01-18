@@ -405,22 +405,26 @@ open class MultiStepRangeSlider: UIControl {
 	- returns:
 	The value assinged to the node if any valid node exists at the given position, else it returns nil.
 	*/
-	private func nodeValueForPosition(_ position: CGFloat)-> Float? {
-		let scale = trackLayer.frame.size.width / CGFloat(nodesList.count)
-		let scaledPosition = position - trackLayer.frame.minX
-		let nodeNumber = Int(floor(scaledPosition / scale))
-		guard nodeNumber < nodesList.count && nodeNumber >= 0 else {
-			return nil
-		}
-		return nodesList[nodeNumber]
-	}
+    private func nodeValueForPosition(_ position: CGFloat)-> Float? {
+        let scale = trackLayer.frame.size.width / CGFloat(nodesList.count)
+        let scaledPosition = position - trackLayer.frame.minX
+        let nodeNumber = Int(floor(scaledPosition / scale))
+        if nodeNumber > nodesList.count - 1 {
+            return nodesList[nodesList.count - 1]
+        } else if nodeNumber < 0 {
+            return nodesList[0]
+        }
+        return nodesList[nodeNumber]
+    }
 
     private func nodeIndexForPosition(_ position: CGFloat)-> Int? {
         let scale = trackLayer.frame.size.width / CGFloat(nodesList.count)
         let scaledPosition = position - trackLayer.frame.minX
         let nodeNumber = Int(floor(scaledPosition / scale))
-        guard nodeNumber < nodesList.count && nodeNumber >= 0 else {
-            return nil
+        if nodeNumber > nodesList.count - 1 {
+            return nodesList.count - 1
+        } else if nodeNumber < 0 {
+            return 0
         }
         return nodeNumber
     }
