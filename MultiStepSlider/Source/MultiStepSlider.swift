@@ -480,8 +480,10 @@ open class MultiStepRangeSlider: UIControl {
             if forceSlide {
                 lowerValue = nodeValue
                 lowerCenter = positionForNodeValue(nodeValue) ?? lowerCenter
+                discreteCurrentValue.lower = lowerValue
                 if lowerValue == upperValue, let nodeIndex = nodeIndexForPosition(lowerCenter), nodeIndex > 0 {
                     lowerValue = nodesList[nodeIndex - 1]
+                    discreteCurrentValue.lower = lowerValue
                     lowerCenter = positionForNodeValue(lowerValue) ?? lowerCenter
                 }
             } else if let actualValue = actualValueForPosition(lowerCenter) {
